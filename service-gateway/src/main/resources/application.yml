@@ -1,0 +1,31 @@
+spring:
+  profiles:
+    active: dev
+  cloud:
+      gateway:
+        routes:
+          - id: user-service
+            uri: lb://user-service
+            predicates:
+              - Path=/api/user/**,/user-service/swagger/**
+            filters:
+              - SwaggerHeaderFilter
+
+logging:
+  level:
+    org.springframework.cloud.gateway: info
+
+
+feign:
+  client:
+    config:
+      # feign全局日志级别
+      default:
+        loggerLevel: full
+
+
+
+open-api:
+  swagger:
+    resources: # name,oas3Url
+      - user-service,/user-service/swagger

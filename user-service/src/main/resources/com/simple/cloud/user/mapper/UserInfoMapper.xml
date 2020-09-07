@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.simple.cloud.user.mapper.UserInfoMapper">
+
+    <resultMap id="userInfoPoResultMap" type="com.simple.cloud.user.mapper.entity.UserInfoPo">
+        <id column="id" jdbcType="INTEGER" property="userId"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="email" property="email"/>
+        <result column="password" property="password"/>
+        <result column="cellphone" property="cellphone"/>
+        <result column="role" property="role"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+    <sql id="columnList">
+        id, user_name, password, role, email, cellphone, update_time, create_time
+    </sql>
+
+    <select id="selectById" resultMap="userInfoPoResultMap">
+        SELECT
+          <include refid="columnList"/>
+        FROM
+          user_info
+        WHERE
+           id = #{userId}
+           AND status= 0
+    </select>
+
+    <select id="selectByIds" resultMap="userInfoPoResultMap">
+        SELECT
+          <include refid="columnList"/>
+        FROM
+          user_info
+        WHERE id IN (
+          <foreach collection="userIds" item="item" index="index" separator=",">
+            #{item}
+          </foreach>
+          )
+          AND status= 0
+    </select>
+
+    <select id="selectByUserName" resultMap="userInfoPoResultMap">
+        SELECT
+          <include refid="columnList"/>
+        FROM user_info
+        WHERE
+          user_name = #{userName}
+          AND status= 0
+    </select>
+
+    <select id="selectUsersByFilter" resultMap="userInfoPoResultMap">
+        SELECT
+          <include refid="columnList"/>
+        FROM user_info
+        WHERE status= 0
+          <if test="userName != null">
+            AND user_name LIKE CONCAT('%',#{userName},'%')
+          </if>
+        ORDER BY create_time DESC, id DESC
+        LIMIT ${currentIndex}, ${pageSize}
+    </select>
+
+    <select id="selectUsersCountByFilter" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM user_info
+        WHERE status= 0
+          <if test="userName != null">
+            AND user_name LIKE CONCAT('%',#{userName},'%')
+          </if>
+    </select>
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="userId" parameterType="com.simple.cloud.user.mapper.entity.UserInfoPo">
+      INSERT INTO user_info (
+        user_name, password, role_id, email, cellphone, ar_role, department, update_time, create_time, roles
+      )
+      VALUES (
+        #{userName}, #{password}, #{roleId}, #{email}, #{cellphone}, #{arRole}, #{department}, #{createTime}, #{updateTime}, #{roles}
+      )
+    </insert>
+
+    <update id="update"  parameterType="com.simple.cloud.user.mapper.entity.UserInfoPo">
+        UPDATE user_info
+        <set>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="userName != null">
+                user_name = #{userName},
+            </if>
+            <if test="roles != null">
+                roles = #{roles},
+            </if>
+            <if test="cellphone != null">
+                cellphone = #{cellphone},
+            </if>
+            <if test="arRole != null">
+                ar_role = #{arRole},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="password != null">
+                password = #{password}
+            </if>
+        </set>
+        WHERE id = #{userId}
+    </update>
+
+    <update id="deleteUser">
+        UPDATE user_info
+        SET del_flag = 1 , update_time = #{time}
+        WHERE id = #{userId}
+    </update>
+
+
+</mapper>

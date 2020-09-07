@@ -1,0 +1,14 @@
+spring:
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:mysql://${database.host}:3306/${database.dbname}?useSSL=false&createDatabaseIfNotExist=true&useUnicode=true&autoReconnect=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&characterEncoding=UTF-8
+    username: ${database.username}
+    password:  ${database.password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      max-lifetime: 1765000
+      maximumPoolSize: 15
+
+

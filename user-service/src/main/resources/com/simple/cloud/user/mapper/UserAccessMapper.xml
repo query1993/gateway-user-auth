@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.simple.cloud.user.mapper.UserAccessMapper">
+
+    <resultMap id="userAccessPoResultMap" type="com.simple.cloud.user.mapper.entity.UserAccessPo">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="login_ip" property="loginIp"/>
+        <result column="token" property="token"/>
+        <result column="token_expired_time" property="tokenExpiredTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="columnList">
+        id, user_id, token, token_expired_time,login_ip, create_time, update_time
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" parameterType="com.simple.cloud.user.mapper.entity.UserAccessPo">
+        INSERT INTO user_access (
+          user_id, token, token_expired_time,login_ip, create_time, update_time
+          )
+        VALUES (
+          #{userId}, #{token}, #{tokenExpiredTime},#{loginIp},#{createTime}, #{updateTime}
+          )
+    </insert>
+
+    <select id="selectByUserIdAndIp"  resultMap="userAccessPoResultMap">
+        SELECT
+          <include refid="columnList"/>
+        FROM
+          user_access
+        WHERE user_id = #{userId}
+          AND login_ip = #{loginIp}
+    </select>
+
+    <select id="selectByToken"  resultMap="userAccessPoResultMap">
+        SELECT
+          <include refid="columnList"/>
+        FROM
+          user_access
+        WHERE token = #{token}
+    </select>
+
+    <update id="update" parameterType="com.simple.cloud.user.mapper.entity.UserAccessPo">
+        UPDATE user_access
+        <set>
+            <if test="token != null and token != ''">
+                token = #{token},
+            </if>
+            <if test="tokenExpiredTime != null">
+                token_expired_time = #{tokenExpiredTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="loginIp != null and loginIp != ''">
+                login_ip = #{loginIp}
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateUserLogout" parameterType="com.simple.cloud.user.mapper.entity.UserAccessPo">
+        UPDATE user_access
+        SET
+          token = #{token},
+          update_time = #{updateTime},
+          token_expired_time = #{tokenExpiredTime}
+        WHERE user_id = #{userId}
+          AND login_ip = #{loginIp}
+    </update>
+
+</mapper>
